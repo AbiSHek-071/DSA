@@ -1,58 +1,84 @@
-class QueueNode {
-  constructor(data) {
-    this.data = data;
-    this.next = null;
+class HashTable {
+  constructor(size) {
+    this.table = new Array(size);
+    this.size = size;
   }
-}
 
-class Queue {
-  constructor() {
-    this.head = null;
-    this.tail = null;
-    this.size = 0;
-  }
-  enqueue(data) {
-    const newNode = new QueueNode(data);
-    if (this.tail) {
-      this.tail.next = newNode;
+  hash(key) {
+    let total = 0;
+    for (let i = 0; i < key.length; i++) {
+      total += key.charCodeAt(i);
     }
-    this.tail = newNode;
-    if (!this.head) {
-      this.head = newNode;
-    }
-    this.size++;
+    return total % this.size;
   }
-  dequeue() {
-    const enqueueValue = this.head.data;
-    this.head = this.head.next;
-    if (!this.head) {
-      this.tail = null;
-    }
-    this.size--;
-  }
-  peek() {
-    if (this.tail) {
-      console.log("peekaboo:", this.head.data);
+  set(key, value) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+
+    if (!bucket) {
+      this.table[index] = [[key, value]];
     } else {
-      console.log("No elements in the list");
+      const sameKeyItem = bucket.find((item) => item[0] === key);
+      if (sameKeyItem) {
+        sameKeyItem[1] = value;
+      } else {
+        bucket.push([key, value]);
+      }
     }
   }
-  printAll() {
-    let current = this.head;
-    while (current != null) {
-      console.log(current.data);
-      current = current.next;
+  get(key) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+    if (bucket) {
+      const sameKeyItem = bucket.find((item) => item[0] === key);
+      if (sameKeyItem) {
+        return sameKeyItem[1];
+      }
+    }
+    return undefined;
+  }
+  has(key) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+    if (bucket) {
+      return bucket.some((item) => item[0] === key);
+    }
+    return false;
+  }
+  remove(key) {
+    const index = this.hash(key);
+    const bucket = this.table[index];
+    if (bucket) {
+      const sameKeyItemIndex = bucket.findIndex((item) => item[0] === key);
+      if (sameKeyItemIndex !== -1) {
+        bucket.splice(sameKeyItemIndex, 1);
+        if (bucket.length === 0) {
+          this.table[index] = undefined;
+        }
+      }
     }
   }
-  isEmpty() {
-    return this.size === 0;
+  display() {
+    for (let i = 0; i < this.size; i++) {
+      if (this.table[i]) {
+        console.log(this.table[i]);
+      }
+    }
   }
 }
 
-const queue = new Queue();
-queue.enqueue(5);
-queue.enqueue(10);
-queue.enqueue(71);
-queue.printAll();
+function findFrq(input) {
+  const frqTable = new HashTable(50);
 
-// queue.peek();
+  for (let value of input) {
+    if (frqTable.has(value)) {
+      frqTable.set(value, frqTable.get(value) + 1);
+    } else {
+      frqTable.set(value, 1);
+    }
+  }
+
+  frqTable.display();
+}
+
+findFrq([5, 6, 3, 2, 5, 2, 4, 1, 6, 2, 7]);
