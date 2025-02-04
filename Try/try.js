@@ -11,10 +11,10 @@ class HashTable {
     }
     return total % this.size;
   }
+
   set(key, value) {
     const index = this.hash(key);
     const bucket = this.table[index];
-
     if (!bucket) {
       this.table[index] = [[key, value]];
     } else {
@@ -26,9 +26,11 @@ class HashTable {
       }
     }
   }
+
   get(key) {
     const index = this.hash(key);
     const bucket = this.table[index];
+
     if (bucket) {
       const sameKeyItem = bucket.find((item) => item[0] === key);
       if (sameKeyItem) {
@@ -37,27 +39,44 @@ class HashTable {
     }
     return undefined;
   }
+
   has(key) {
     const index = this.hash(key);
     const bucket = this.table[index];
+
     if (bucket) {
-      return bucket.some((item) => item[0] === key);
+      const sameKeyItem = bucket.find((item) => item[0] === key);
+      if (sameKeyItem) {
+        return true;
+      }
     }
     return false;
   }
+
   remove(key) {
     const index = this.hash(key);
     const bucket = this.table[index];
+
     if (bucket) {
-      const sameKeyItemIndex = bucket.findIndex((item) => item[0] === key);
-      if (sameKeyItemIndex !== -1) {
-        bucket.splice(sameKeyItemIndex, 1);
-        if (bucket.length === 0) {
-          this.table[index] = undefined;
+      const sameKeyItem = bucket.find((item) => item[0] === key);
+      if (sameKeyItem) {
+        bucket.splice(bucket.indexOf(sameKeyItem), 1);
+      }
+    }
+  }
+
+  unique() {
+    for (let i = 0; i < this.size; i++) {
+      if (this.table[i]) {
+        for (let [key, value] of this.table[i]) {
+          if (value === 1) {
+            console.log(key);
+          }
         }
       }
     }
   }
+
   display() {
     for (let i = 0; i < this.size; i++) {
       if (this.table[i]) {
@@ -68,17 +87,20 @@ class HashTable {
 }
 
 function findFrq(input) {
-  const frqTable = new HashTable(50);
+  const table = new HashTable(50);
 
   for (let value of input) {
-    if (frqTable.has(value)) {
-      frqTable.set(value, frqTable.get(value) + 1);
+    if (table.has(value)) {
+      table.set(value, table.get(value) + 1);
     } else {
-      frqTable.set(value, 1);
+      table.set(value, 1);
     }
   }
 
-  frqTable.display();
+  table.display();
+
+  console.log("unique");
+  table.unique();
 }
 
-findFrq([5, 6, 3, 2, 5, 2, 4, 1, 6, 2, 7]);
+findFrq([4, 5, 3, 2, 4, 5, 9, 7, 2, 4, 5, 2, 4, 6]);
